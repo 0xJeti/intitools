@@ -12,4 +12,7 @@
 *.out
 
 # Dependency directories (remove the comment below to include it)
-# vendor/
+# vendor
+cmd/inti-activity/inti-activity
+.vscode
+cmd/inti-activity/__debug_bin

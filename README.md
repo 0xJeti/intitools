@@ -1,2 +1,2 @@
 # intitools
-Collection of tools to interact with Intigriti website
+Un-official Intigriti API client
