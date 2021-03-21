@@ -1,0 +1,4 @@
+username YOUR_EMAIL
+password YOUR_PASSWORD
+webhook SLACK_WEBHOOK
+tick 60s
