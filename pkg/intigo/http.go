@@ -13,6 +13,7 @@ import (
 	"time"
 
 	"golang.org/x/net/html"
+	"golang.org/x/time/rate"
 )
 
 const (
@@ -22,16 +23,17 @@ const (
 )
 
 type Client struct {
-	ApiURL          string
-	AppURL          string
-	LoginURL        string
-	apiKey          string
-	Authenticated   bool
-	username        string
-	password        string
-	LastViewed      int64
-	SlackWebhookURL string
-	HTTPClient      *http.Client
+	ApiURL        string
+	AppURL        string
+	LoginURL      string
+	apiKey        string
+	Authenticated bool
+	username      string
+	password      string
+	LastViewed    int64
+	WebhookURL    string
+	Ratelimiter   *rate.Limiter
+	HTTPClient    *http.Client
 }
 
 type ResponseState struct {
@@ -48,7 +50,7 @@ type ResponseUser struct {
 	Username string `json:"userName"`
 }
 
-func NewClient(username string, password string) *Client {
+func NewClient(username string, password string, rl *rate.Limiter) *Client {
 
 	jar, err := cookiejar.New(nil)
 	if err != nil {
@@ -74,6 +76,7 @@ func NewClient(username string, password string) *Client {
 			Transport: tr,
 		},
 		Authenticated: false,
+		Ratelimiter:   rl,
 	}
 }
 

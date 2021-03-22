@@ -11,10 +11,11 @@ import (
 const defaultTick = 5 * time.Second
 
 type config struct {
-	tick       time.Duration
-	username   string
-	password   string
-	webhookurl string
+	tick        time.Duration
+	username    string
+	password    string
+	webhookurl  string
+	webhooktype string
 }
 
 func (c *config) init(args []string) error {
@@ -22,10 +23,11 @@ func (c *config) init(args []string) error {
 	flags.String(flag.DefaultConfigFlagname, "", "Path to config file")
 
 	var (
-		tick       = flags.Duration("tick", defaultTick, "Ticking interval")
-		username   = flags.String("username", "", "Intigriti username (e-mail)")
-		password   = flags.String("password", "", "Intigriti password")
-		webhookurl = flags.String("webhook", "", "Webhook URL")
+		tick        = flags.Duration("tick", defaultTick, "Ticking interval")
+		username    = flags.String("username", "", "Intigriti username (e-mail)")
+		password    = flags.String("password", "", "Intigriti password")
+		webhookurl  = flags.String("webhook", "", "Webhook URL")
+		webhooktype = flags.String("type", "slack", "Webhook type [slack|discord]")
 	)
 
 	if err := flags.Parse(args[1:]); err != nil {
@@ -42,6 +44,7 @@ func (c *config) init(args []string) error {
 	c.tick = *tick
 	c.password = *password
 	c.webhookurl = *webhookurl
+	c.webhooktype = *webhooktype
 
 	return nil
 }
