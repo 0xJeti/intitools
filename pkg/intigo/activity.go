@@ -161,8 +161,8 @@ func (c *Client) FormatActivityMessage(a Activity) (string, error) {
 	submissionLink := fmt.Sprintf("*%s* <https://app.intigriti.com/researcher/submissions/%s/%s|%s>",
 		a.Programname, a.Programid, a.Submissioncode, a.Submissiontitle)
 
-	programLink := fmt.Sprintf("<https://app.intigriti.com/researcher/programs/%s/website/detail|%s>",
-		a.Programhandle, a.Programname)
+	programLink := fmt.Sprintf("<https://app.intigriti.com/researcher/programs/%s/%s|%s>",
+		a.Companyhandle, a.Programhandle, a.Programname)
 
 	switch d := a.Discriminator; d {
 
