@@ -11,6 +11,7 @@ import (
 	"time"
 
 	intitools "github.com/0xJeti/intitools/pkg/intigo"
+	"golang.org/x/time/rate"
 )
 
 func main() {
@@ -54,8 +55,9 @@ func main() {
 func run(ctx context.Context, conf *config, out io.Writer) error {
 	conf.init(os.Args)
 
-	c := intitools.NewClient(conf.username, conf.password)
-	c.SlackWebhookURL = conf.webhookurl
+	rl := rate.NewLimiter(rate.Every(time.Second), 2) // 2 requests every second
+	c := intitools.NewClient(conf.username, conf.password, rl)
+	c.WebhookURL = conf.webhookurl
 
 	log.SetOutput(os.Stdout)
 
@@ -79,7 +81,7 @@ func run(ctx context.Context, conf *config, out io.Writer) error {
 				log.Printf("CheckActivity error: %s\n", err)
 				continue
 			}
-
+			numActivities = 20
 			if numActivities == 0 {
 				continue
 			}
@@ -96,15 +98,16 @@ func run(ctx context.Context, conf *config, out io.Writer) error {
 					break
 				}
 
-				message, err := c.FormatActivityMessage(activity)
-				if err != nil {
-					log.Printf("FormatActivityMessage error: %s\n", err)
-					continue
+				if conf.webhooktype == "slack" {
+					message := c.SlackFormatActivity(activity)
+					err = c.SlackSend(message)
+				} else {
+					message := c.DiscordFormatActivity(activity)
+					err = c.DiscordSend(httpctx, message)
 				}
 
-				err = c.SlackSend(message)
 				if err != nil {
-					log.Printf("SlackSend error: %s\n", err)
+					log.Printf("Webhook send error: %s\n", err)
 					continue
 				}
 

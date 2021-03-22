@@ -58,23 +58,6 @@ type ActivityOptions struct {
 	StartDate          int64
 }
 
-const messageTemplate = `{
-	"text": "%s",
-	"mrkdwn": true,
-	"blocks": [
-		{
-			"type": "section",
-			"text": {
-				"type": "mrkdwn",
-				"text": "%s"
-			}
-		},
-		{
-			"type": "divider"
-		}
-	]
-}`
-
 func (c *Client) GetActivities(ctx context.Context) (*ActivityList, error) {
 
 	apiURL := fmt.Sprintf("%s/core/researcher/dashboard/activity", c.ApiURL)
@@ -114,26 +97,37 @@ func (c *Client) CheckActivity(ctx context.Context) (int, error) {
 
 	return res, nil
 }
-
-func (c *Client) FormatActivityMessage(a Activity) (string, error) {
-
+func (c *Client) GetSubmissionState(state int) string {
 	submmissionStates := []string{
 		"Dummy",
-		"Unknown",
+		"Unknown: 1",
 		"Pending",
 		"Accepted",
 		"Closed",
 		"Archived",
+		"Unknown: 6",
+		"Unknown: 7",
 	}
 
+	return submmissionStates[state]
+}
+
+func (c *Client) GetClosedState(state int) string {
 	closedStates := []string{
 		"Dummy",
 		"Unknown",
 		"Duplicate",
-		"Unknown",
+		"Unknown: 3",
 		"Informative",
+		"Unknown: 5",
+		"Unknown: 6",
+		"Unknown: 7",
 	}
 
+	return closedStates[state]
+}
+
+func (c *Client) GetSeverity(severity int) string {
 	severityIds := []string{
 		"Dummy",
 		"Undecided",
@@ -142,87 +136,22 @@ func (c *Client) FormatActivityMessage(a Activity) (string, error) {
 		"High",
 		"Critical",
 		"Exceptional",
+		"Unknown: 7",
 	}
 
-	programStates := []string{
+	return severityIds[severity]
+}
 
+func (c *Client) GetProgramState(program int) string {
+	programStates := []string{
 		"Dummy",
-		"Unknown",
-		"Unknown",
+		"Unknown: 1",
+		"Unknown: 2",
 		"Open",
 		"Suspended",
 		"Closing",
 		"Closed",
+		"Unknown: 7",
 	}
-
-	var tmp = messageTemplate
-	var message string
-
-	submissionLink := fmt.Sprintf("*%s* <https://app.intigriti.com/researcher/submissions/%s/%s|%s>",
-		a.Programname, a.Programid, a.Submissioncode, a.Submissiontitle)
-
-	programLink := fmt.Sprintf("<https://app.intigriti.com/researcher/programs/%s/website/detail|%s>",
-		a.Programhandle, a.Programname)
-
-	switch d := a.Discriminator; d {
-
-	case 1:
-		userRole := a.User.Role
-		// Do not send notifications about our own messages
-		if userRole != "RESEARCHER" {
-			message = fmt.Sprintf("%s\\nNew *message* from *%s* (%s)",
-				submissionLink, a.User.Username, userRole)
-		}
-
-	//	2	Submission 	- Status change
-	case 2:
-		newState := submmissionStates[a.Newstate.Status]
-		// If status is Closed add reason
-		if a.Newstate.Status == 4 {
-			newState += " as " + closedStates[a.Newstate.Closereason]
-		}
-
-		message = fmt.Sprintf("%s\\nThe *status* changed to `%s`", submissionLink, newState)
-
-	//	3	Submission 	- Change Severity
-	case 3:
-		message = fmt.Sprintf("%s\\nThe *severity* changed to `%s`", submissionLink, severityIds[a.Newseverityid])
-
-	//	5 	Submission 	- Payout
-	case 5:
-		message = fmt.Sprintf("%s\\nNew payout *€%.f* :partying_face:", submissionLink, a.NewPayoutAmount)
-
-	//	7 	Submission 	- Change vulnerable endpoint
-	case 7:
-		message = fmt.Sprintf("%s\\nThe *endpoint / vulnerable component* changed", submissionLink)
-	//	9 	Submission 	- User requires additional feedback
-	case 9:
-		message = fmt.Sprintf("%s\\n*%s* requires additional feedback", submissionLink, a.UserName)
-	//	10	Submission 	- User provided feedback
-	case 10:
-		message = fmt.Sprintf("%s\\n*%s* provided additional feedback", submissionLink, a.UserName)
-	//	20 	Program		- Status Change
-	case 20:
-		message = fmt.Sprintf("%s changed *program status* to `%s`", programLink, programStates[a.Newstatusid])
-	//	23 	Program		- Update bounties
-	case 23:
-		message = fmt.Sprintf("%s updated *bounties*", programLink)
-	//	24 	Program		- Update scope
-	case 24:
-		message = fmt.Sprintf("%s updated *scope*", programLink)
-	//	26 	Program		- Update FAQ
-	case 26:
-		message = fmt.Sprintf("%s updated *FAQ*", programLink)
-	//	27 	Program		- Update domains
-	case 27:
-		message = fmt.Sprintf("%s updated *domains*", programLink)
-	//	47 	Program		- Program update published
-	case 47:
-		message = fmt.Sprintf("%s published a program update: *%s*\\n```%s```", programLink, a.Title, a.Description[:500])
-
-	}
-	if message == "" {
-		return "", fmt.Errorf("Unknown message type")
-	}
-	return fmt.Sprintf(tmp, message, message), nil
+	return programStates[program]
 }
