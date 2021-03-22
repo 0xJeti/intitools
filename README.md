@@ -18,6 +18,7 @@ webhook SLACK_WEBHOOK
 tick 60s
 ```
 * `tick` - duration between checks
+* `webhook` - Slack Webhook. See [Sending messages using Incoming Webhooks](https://api.slack.com/messaging/webhooks) for more details.
 ## Run
 ```
 inti-activity -config monitor.conf
