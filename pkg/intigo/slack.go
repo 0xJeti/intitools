@@ -108,6 +108,9 @@ func (c *Client) SlackFormatActivity(a Activity) string {
 	//	24 	Program		- Update scope
 	case 24:
 		message = fmt.Sprintf("%s updated *scope*", programLink)
+	//	25 	Program		- Update out of scope
+	case 25:
+		message = fmt.Sprintf("%s updated *out of scope*", programLink)
 	//	26 	Program		- Update FAQ
 	case 26:
 		message = fmt.Sprintf("%s updated *FAQ*", programLink)

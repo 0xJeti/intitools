@@ -139,6 +139,11 @@ func (c *Client) DiscordFormatActivity(a Activity) string {
 		message = fmt.Sprintf("Program updated **scope**")
 		link = programLink
 		title = programTitle
+	//	25 	Program		- Update out of scope
+	case 25:
+		message = fmt.Sprintf("Program updated **out of scope**")
+		link = programLink
+		title = programTitle
 	//	26 	Program		- Update FAQ
 	case 26:
 		message = fmt.Sprintf("Program updated **FAQ**")
