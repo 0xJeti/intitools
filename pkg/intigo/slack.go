@@ -117,6 +117,9 @@ func (c *Client) SlackFormatActivity(a Activity) string {
 	//	27 	Program		- Update domains
 	case 27:
 		message = fmt.Sprintf("%s updated *domains*", programLink)
+	//	28 	Program		- Update rules of engagement
+	case 28:
+		message = fmt.Sprintf("%s updated *rules of engagement*", programLink)
 	//	29 	Program		- Update severity assessment
 	case 29:
 		message = fmt.Sprintf("%s updated *severity assessment*", programLink)

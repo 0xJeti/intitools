@@ -154,6 +154,11 @@ func (c *Client) DiscordFormatActivity(a Activity) string {
 		message = fmt.Sprintf("Program updated **domains**")
 		link = programLink
 		title = programTitle
+	//	28 	Program		- Update rules of engagement
+	case 28:
+		message = fmt.Sprintf("Program updated **rules of engagement**")
+		link = programLink
+		title = programTitle
 	//	29 	Program		- Update severity assessment
 	case 29:
 		message = fmt.Sprintf("Program updated **severity assessment**")

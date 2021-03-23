@@ -11,8 +11,11 @@ package intitools
 20 	Program		- Status Change
 23 	Program		- Update bounties
 24 	Program		- Update scope
+25 	Program		- Update out of scope
 26 	Program		- Update FAQ
 27 	Program		- Update domains
+28  Program 	- Update rules of engagement
+29  Program 	- Update out of scope
 47 	Program		- update
 
 */
