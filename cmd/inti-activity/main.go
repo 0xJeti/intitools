@@ -81,7 +81,7 @@ func run(ctx context.Context, conf *config, out io.Writer) error {
 				log.Printf("CheckActivity error: %s\n", err)
 				continue
 			}
-			numActivities = 20
+
 			if numActivities == 0 {
 				continue
 			}
