@@ -59,6 +59,8 @@ func run(ctx context.Context, conf *config, out io.Writer) error {
 	c := intitools.NewClient(conf.username, conf.password, rl)
 	c.WebhookURL = conf.webhookurl
 
+	sendlast := conf.sendlast
+
 	log.SetOutput(os.Stdout)
 
 	log.Printf("Starting monitoring with tick %s", conf.tick)
@@ -81,6 +83,10 @@ func run(ctx context.Context, conf *config, out io.Writer) error {
 				log.Printf("CheckActivity error: %s\n", err)
 				continue
 			}
+
+			// Use sendlast for first iteration and reset for all other
+			numActivities += sendlast
+			sendlast = 0
 
 			if numActivities == 0 {
 				continue

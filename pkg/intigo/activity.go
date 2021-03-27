@@ -15,7 +15,7 @@ package intitools
 26 	Program		- Update FAQ
 27 	Program		- Update domains
 28  Program 	- Update rules of engagement
-29  Program 	- Update out of scope
+29  Program 	- Update out of
 47 	Program		- update
 
 */

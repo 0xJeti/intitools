@@ -3,23 +3,28 @@ package intitools
 import (
 	"bytes"
 	"context"
+	"encoding/json"
 	"fmt"
+	"io/ioutil"
+	"log"
 	"net/http"
 )
 
-const discordMessageTemplate = `
-{
-	
-	"embeds": [{
-		"color": 3447003,
-		"title": "%s",
-		"url": "%s",
-		"description": "%s",
-		"thumbnail": {
-			"url": "%s"
-		}
-	}]
-}`
+type discordMessage struct {
+	Embeds []discordMsgEmbeds `json:"embeds"`
+}
+
+type discordMsgEmbeds struct {
+	Color       int          `json:"color"`
+	Title       string       `json:"title"`
+	URL         string       `json:"url"`
+	Description string       `json:"description"`
+	Thumbnail   discordThumb `json:"thumbnail"`
+}
+
+type discordThumb struct {
+	URL string `json:"url"`
+}
 
 func (c *Client) DiscordSend(ctx context.Context, message string) error {
 	webhookURL := c.WebhookURL
@@ -47,6 +52,14 @@ func (c *Client) DiscordSend(ctx context.Context, message string) error {
 	}
 
 	if res.StatusCode < 200 || res.StatusCode > 299 {
+		log.Print(message)
+		bodyBytes, err := ioutil.ReadAll(res.Body)
+		if err != nil {
+			log.Fatal(err)
+		}
+		bodyString := string(bodyBytes)
+		log.Printf(bodyString)
+
 		return fmt.Errorf("cannot send message. Error code: %d", res.StatusCode)
 	}
 
@@ -75,12 +88,14 @@ func (c *Client) DiscordFormatActivity(a Activity) string {
 	case 1:
 		userRole := a.User.Role
 		// Do not send notifications about our own messages
-		if userRole != "RESEARCHER" {
-			message = fmt.Sprintf("New **message** from *%s* (%s)",
-				a.User.Username, userRole)
-			link = submissionLink
-			title = submissionTitle
+		if userRole == "RESEARCHER" {
+			return ""
 		}
+
+		message = fmt.Sprintf("New **message** from *%s* (%s)",
+			a.User.Username, userRole)
+		link = submissionLink
+		title = submissionTitle
 
 	//	2	Submission 	- Status change
 	case 2:
@@ -121,6 +136,11 @@ func (c *Client) DiscordFormatActivity(a Activity) string {
 	//	10	Submission 	- User provided feedback
 	case 10:
 		message = fmt.Sprintf("**@%s** provided additional feedback", a.UserName)
+		link = submissionLink
+		title = submissionTitle
+
+	case 11:
+		message = fmt.Sprintf("**@%s** stopped requesting feedback", a.UserName)
 		link = submissionLink
 		title = submissionTitle
 
@@ -166,15 +186,44 @@ func (c *Client) DiscordFormatActivity(a Activity) string {
 		title = programTitle
 		//	47 	Program		- Program update published
 	case 47:
-		message = fmt.Sprintf("Program published an update: **%s**\\n```%s```", a.Title, a.Description[:200])
+		descr := a.Description
+		if len(descr) > 250 {
+			descr = descr[:250]
+		}
+		message = fmt.Sprintf("Program published an update: **%s**\n```%s```", a.Title, descr)
 		link = programLink
 		title = programTitle
 
 	}
+
 	if message == "" {
 		message = fmt.Sprintf("Unknown message type: %d", a.Discriminator)
 	}
-	return fmt.Sprintf(discordMessageTemplate, title, link, message, iconUrl)
+
+	embedMsg := discordMsgEmbeds{
+		Title:       title,
+		URL:         link,
+		Description: message,
+		Thumbnail: discordThumb{
+			URL: iconUrl,
+		},
+	}
+
+	embed := make([]discordMsgEmbeds, 0)
+	embed = append(embed, embedMsg)
+	discordMsg := discordMessage{
+		Embeds: embed,
+	}
+
+	jsonMsg, err := json.Marshal(discordMsg)
+
+	if err != nil {
+		return ""
+	}
+
+	return string(jsonMsg)
+
+	//return fmt.Sprintf(discordMessageTemplate, title, link, message, iconUrl)
 }
 
 /*

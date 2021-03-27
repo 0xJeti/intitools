@@ -2,27 +2,27 @@ package intitools
 
 import (
 	"bytes"
+	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"net/http"
 )
 
-const slackMessageTemplate = `{
-	"text": "%s",
-	"mrkdwn": true,
-	"blocks": [
-		{
-			"type": "section",
-			"text": {
-				"type": "mrkdwn",
-				"text": "%s"
-			}
-		},
-		{
-			"type": "divider"
-		}
-	]
-}`
+type slackMessage struct {
+	Text   string       `json:"text"`
+	Mrkdwn bool         `json:"mrkdwn"`
+	Blocks []slackBlock `json:"blocks"`
+}
+
+type slackBlock struct {
+	Type string         `json:"type"`
+	Text slackBlockText `json:"text"`
+}
+
+type slackBlockText struct {
+	Type string `json:"type"`
+	Text string `json:"text"`
+}
 
 func (c *Client) SlackSend(message string) error {
 	webhookURL := c.WebhookURL
@@ -31,7 +31,7 @@ func (c *Client) SlackSend(message string) error {
 		return fmt.Errorf("Webhook not defined.")
 	}
 
-	jsonStr := []byte(fmt.Sprintf(slackMessageTemplate, message, message))
+	jsonStr := []byte(message)
 	req, err := http.NewRequest("POST", webhookURL, bytes.NewBuffer(jsonStr))
 	if err != nil {
 		return err
@@ -67,10 +67,12 @@ func (c *Client) SlackFormatActivity(a Activity) string {
 	case 1:
 		userRole := a.User.Role
 		// Do not send notifications about our own messages
-		if userRole != "RESEARCHER" {
-			message = fmt.Sprintf("%s\\nNew *message* from *%s* (%s)",
-				submissionLink, a.User.Username, userRole)
+		if userRole == "RESEARCHER" {
+			return ""
 		}
+
+		message = fmt.Sprintf("%s\nNew *message* from *%s* (%s)",
+			submissionLink, a.User.Username, userRole)
 
 	//	2	Submission 	- Status change
 	case 2:
@@ -80,25 +82,28 @@ func (c *Client) SlackFormatActivity(a Activity) string {
 			newState += " as " + c.GetClosedState(a.Newstate.Closereason)
 		}
 
-		message = fmt.Sprintf("%s\\nThe *status* changed to `%s`", submissionLink, newState)
+		message = fmt.Sprintf("%s\nThe *status* changed to `%s`", submissionLink, newState)
 
 	//	3	Submission 	- Change Severity
 	case 3:
-		message = fmt.Sprintf("%s\\nThe *severity* changed to `%s`", submissionLink, c.GetSeverity(a.Newseverityid))
+		message = fmt.Sprintf("%s\nThe *severity* changed to `%s`", submissionLink, c.GetSeverity(a.Newseverityid))
 
 	//	5 	Submission 	- Payout
 	case 5:
-		message = fmt.Sprintf("%s\\nNew payout *€%.f* :partying_face:", submissionLink, a.NewPayoutAmount)
+		message = fmt.Sprintf("%s\nNew payout *€%.f* :partying_face:", submissionLink, a.NewPayoutAmount)
 
 	//	7 	Submission 	- Change vulnerable endpoint
 	case 7:
-		message = fmt.Sprintf("%s\\nThe *endpoint / vulnerable component* changed", submissionLink)
+		message = fmt.Sprintf("%s\nThe *endpoint / vulnerable component* changed", submissionLink)
 	//	9 	Submission 	- User requires additional feedback
 	case 9:
-		message = fmt.Sprintf("%s\\n*%s* requires additional feedback", submissionLink, a.UserName)
+		message = fmt.Sprintf("%s\n*%s* requires additional feedback", submissionLink, a.UserName)
 	//	10	Submission 	- User provided feedback
 	case 10:
-		message = fmt.Sprintf("%s\\n*%s* provided additional feedback", submissionLink, a.UserName)
+		message = fmt.Sprintf("%s\n*%s* provided additional feedback", submissionLink, a.UserName)
+	//	20 	Program		- Status Change
+	case 11:
+		message = fmt.Sprintf("%s\n*%s* stopped requesting feedback", submissionLink, a.UserName)
 	//	20 	Program		- Status Change
 	case 20:
 		message = fmt.Sprintf("%s changed *program status* to `%s`", programLink, c.GetProgramState(a.Newstatusid))
@@ -125,11 +130,39 @@ func (c *Client) SlackFormatActivity(a Activity) string {
 		message = fmt.Sprintf("%s updated *severity assessment*", programLink)
 		//	47 	Program		- Program update published
 	case 47:
-		message = fmt.Sprintf("%s published a program update: *%s*\\n```%s```", programLink, a.Title, a.Description[:500])
+		descr := a.Description
+		if len(descr) > 500 {
+			descr = fmt.Sprintf("%s [...]", descr[:500])
+		}
+		message = fmt.Sprintf("%s published a program update: *%s*\n```%s```", programLink, a.Title, descr)
 
 	}
 	if message == "" {
 		message = fmt.Sprintf("Unknown message type: %d", a.Discriminator)
 	}
-	return message
+
+	blockMsg := slackBlock{
+		Type: "section",
+		Text: slackBlockText{
+			Text: message,
+			Type: "mrkdwn",
+		},
+	}
+
+	block := make([]slackBlock, 0)
+	block = append(block, blockMsg)
+	slackMsg := slackMessage{
+		Text:   message,
+		Mrkdwn: true,
+		Blocks: block,
+	}
+
+	jsonMsg, err := json.Marshal(slackMsg)
+
+	if err != nil {
+		return ""
+	}
+
+	return string(jsonMsg)
+
 }
