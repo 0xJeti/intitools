@@ -8,7 +8,7 @@ import (
 	"github.com/namsral/flag"
 )
 
-const defaultTick = 5 * time.Second
+const defaultTick = 60 * time.Second
 
 type config struct {
 	tick        time.Duration
