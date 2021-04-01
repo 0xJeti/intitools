@@ -56,7 +56,7 @@ func run(ctx context.Context, conf *config, out io.Writer) error {
 	conf.init(os.Args)
 
 	rl := rate.NewLimiter(rate.Every(time.Second), 2) // 2 requests every second
-	c := intitools.NewClient(conf.username, conf.password, rl)
+	c := intitools.NewClient(conf.username, conf.password, conf.secret, rl)
 	c.WebhookURL = conf.webhookurl
 
 	sendlast := conf.sendlast

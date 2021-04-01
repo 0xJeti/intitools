@@ -1,4 +1,5 @@
 username YOUR_EMAIL
 password YOUR_PASSWORD
+secret YOUR_2FA_SECRET
 webhook SLACK_WEBHOOK
 tick 60s

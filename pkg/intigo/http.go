@@ -12,6 +12,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/pquerna/otp/totp"
 	"golang.org/x/net/html"
 	"golang.org/x/time/rate"
 )
@@ -30,6 +31,7 @@ type Client struct {
 	Authenticated bool
 	username      string
 	password      string
+	secret        string
 	LastViewed    int64
 	WebhookURL    string
 	Ratelimiter   *rate.Limiter
@@ -50,7 +52,7 @@ type ResponseUser struct {
 	Username string `json:"userName"`
 }
 
-func NewClient(username string, password string, rl *rate.Limiter) *Client {
+func NewClient(username string, password string, secret string, rl *rate.Limiter) *Client {
 
 	jar, err := cookiejar.New(nil)
 	if err != nil {
@@ -69,6 +71,7 @@ func NewClient(username string, password string, rl *rate.Limiter) *Client {
 		apiKey:     "",
 		username:   username,
 		password:   password,
+		secret:     secret,
 		LastViewed: lastVisited,
 		HTTPClient: &http.Client{
 			Timeout:   time.Minute,
@@ -145,28 +148,84 @@ func (c *Client) Authenticate() error {
 		if res2.StatusCode < http.StatusOK || res2.StatusCode >= http.StatusBadRequest {
 			return fmt.Errorf("unknown error, status code: %d", res2.StatusCode)
 		}
+
+		finalURL := res2.Request.URL.String()
+
+		// If last redirect was to /account/loginwith2fa we need a 2FA token
+		if strings.Contains(finalURL, "/account/loginwith2fa") {
+			if c.secret == "" {
+				return fmt.Errorf("2FA is enabled but no secret is provided.")
+			}
+
+			// Parse HTML and find CSRF token and Return URL
+			root, err := html.Parse(res2.Body)
+			if err != nil {
+				return fmt.Errorf("unknown error, status code: %d", res2.StatusCode)
+			}
+
+			csrfToken, err := c.getElementValue("__RequestVerificationToken", root)
+			if err != nil {
+				log.Fatal(err.Error())
+			}
+
+			otpKey, err := totp.GenerateCode(c.secret, time.Now())
+			if err != nil {
+				return err
+			}
+
+			// Prepare OTP form for POST request
+			otpForm := url.Values{}
+			otpForm.Add("__RequestVerificationToken", csrfToken)
+			otpForm.Add("Input.TwoFactorAuthentication.VerificationCode", otpKey)
+
+			req3, err := http.NewRequest("POST", finalURL, strings.NewReader(otpForm.Encode()))
+			if err != nil {
+				return err
+			}
+
+			req3.Header.Add("Content-Type", "application/x-www-form-urlencoded")
+			res3, err := c.HTTPClient.Do(req3)
+			if err != nil {
+				return err
+			}
+
+			defer res3.Body.Close()
+
+			// Check status
+			if res3.StatusCode < http.StatusOK || res3.StatusCode >= http.StatusBadRequest {
+				return fmt.Errorf("unknown error, status code: %d", res3.StatusCode)
+			}
+
+			finalURL := res3.Request.URL.String()
+
+			// If last redirect was not to /researcher/ the 2FA secret failed to authenticate
+			if finalURL[len(finalURL)-12:] != "/researcher/" {
+				return fmt.Errorf("Failed to authenticate with 2FA")
+			}
+		}
+
 		log.Println("Client authenticated")
 	}
 
 	// Third request to get API token
-	req3, err := http.NewRequest("GET", fmt.Sprintf("%s/auth/token", c.AppURL), nil)
+	req4, err := http.NewRequest("GET", fmt.Sprintf("%s/auth/token", c.AppURL), nil)
 	if err != nil {
 		return err
 	}
 
-	res3, err := c.HTTPClient.Do(req3)
+	res4, err := c.HTTPClient.Do(req4)
 	if err != nil {
 		return err
 	}
 
-	defer res3.Body.Close()
+	defer res4.Body.Close()
 
-	if res3.StatusCode < http.StatusOK || res3.StatusCode >= http.StatusBadRequest {
-		return fmt.Errorf("unknown error, status code: %d", res3.StatusCode)
+	if res4.StatusCode < http.StatusOK || res4.StatusCode >= http.StatusBadRequest {
+		return fmt.Errorf("unknown error, status code: %d", res4.StatusCode)
 	}
 
 	// Parse response to get API Token
-	apiToken, err := ioutil.ReadAll(res3.Body)
+	apiToken, err := ioutil.ReadAll(res4.Body)
 	if err != nil {
 		log.Fatal(err)
 	}
