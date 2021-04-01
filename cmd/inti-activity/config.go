@@ -14,6 +14,7 @@ type config struct {
 	tick        time.Duration
 	username    string
 	password    string
+	secret      string
 	webhookurl  string
 	webhooktype string
 	sendlast    int
@@ -27,6 +28,7 @@ func (c *config) init(args []string) error {
 		tick        = flags.Duration("tick", defaultTick, "Ticking interval")
 		username    = flags.String("username", "", "Intigriti username (e-mail)")
 		password    = flags.String("password", "", "Intigriti password")
+		secret      = flags.String("secret", "", "Intigriti 2FA secret")
 		webhookurl  = flags.String("webhook", "", "Webhook URL")
 		webhooktype = flags.String("type", "slack", "Webhook type [slack|discord]")
 		sendlast    = flags.Int("last", 0, "Number of activity entries sent on start (for debugging)")
@@ -45,6 +47,7 @@ func (c *config) init(args []string) error {
 	c.username = *username
 	c.tick = *tick
 	c.password = *password
+	c.secret = *secret
 	c.webhookurl = *webhookurl
 	c.webhooktype = *webhooktype
 	c.sendlast = *sendlast
