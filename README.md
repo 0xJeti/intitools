@@ -1,6 +1,9 @@
 Small tool, written in Go, that constantly monitors Activity feed on https://app.intigriti.com Dashboard page and sends Slack/Discord notifications on new activities.
 
-![Discord notification](https://github.com/0xJeti/intitools/raw/main/image/discord-notify.png) ![Slack notification](https://github.com/0xJeti/intitools/raw/main/image/slack-notify.png)
+### Discord notifications
+![Discord notification](https://github.com/0xJeti/intitools/raw/main/image/discord-notify.png)
+### Slack notifications
+![Slack notification](https://github.com/0xJeti/intitools/raw/main/image/slack-notify.png)
 
 As Intigriti does not provide official API for researchers this tool mimics the login process to connect to API. That's why you need to provide your full Intigriti login credentials at start.
 
