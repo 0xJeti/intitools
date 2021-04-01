@@ -8,6 +8,7 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+	"net/url"
 )
 
 type discordMessage struct {
@@ -71,11 +72,11 @@ func (c *Client) DiscordFormatActivity(a Activity) string {
 	var message string
 
 	submissionLink := fmt.Sprintf("https://app.intigriti.com/researcher/submissions/%s/%s",
-		a.Programid, a.Submissioncode)
+		url.PathEscape(a.Programid), url.PathEscape(a.Submissioncode))
 	submissionTitle := fmt.Sprintf("[%s] %s", a.Programname, a.Submissiontitle)
 
 	programLink := fmt.Sprintf("https://app.intigriti.com/researcher/programs/%s/%s",
-		a.Companyhandle, a.Programhandle)
+		url.PathEscape(a.Companyhandle), url.PathEscape(a.Programhandle))
 	programTitle := a.Programname
 
 	iconUrl := fmt.Sprintf("https://api.intigriti.com/file/api/file/%s", a.Programlogoid)
@@ -223,21 +224,4 @@ func (c *Client) DiscordFormatActivity(a Activity) string {
 
 	return string(jsonMsg)
 
-	//return fmt.Sprintf(discordMessageTemplate, title, link, message, iconUrl)
 }
-
-/*
-{
-
-	"embeds": [{
-		"color": 3447003,
-		"title": "%s",
-		"url": "%s",
-		"author": {
-			"name": "%s",
-			"icon_url": "%s",
-		}
-		"description": "xxx"
-	}]
-}`
-*/

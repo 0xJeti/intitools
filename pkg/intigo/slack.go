@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"net/url"
 )
 
 type slackMessage struct {
@@ -58,9 +59,9 @@ func (c *Client) SlackFormatActivity(a Activity) string {
 	var message string
 
 	submissionLink := fmt.Sprintf("*%s* <https://app.intigriti.com/researcher/submissions/%s/%s|%s>",
-		a.Programname, a.Programid, a.Submissioncode, a.Submissiontitle)
+		url.PathEscape(a.Programname), url.PathEscape(a.Programid), a.Submissioncode, a.Submissiontitle)
 	programLink := fmt.Sprintf("<https://app.intigriti.com/researcher/programs/%s/%s|%s>",
-		a.Companyhandle, a.Programhandle, a.Programname)
+		url.PathEscape(a.Companyhandle), url.PathEscape(a.Programhandle), a.Programname)
 
 	switch d := a.Discriminator; d {
 
