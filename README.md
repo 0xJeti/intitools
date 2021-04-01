@@ -1,36 +1,42 @@
-# inti-activity
-This tool, written in Go, constantly monitors Activity feed on intigriti.com Dashboard page and sends Slack/Discord notifications on new activities.
+Small tool, written in Go, that constantly monitors Activity feed on https://app.intigriti.com Dashboard page and sends Slack/Discord notifications on new activities.
 
-As Intigriti does not provide official API for reasearchers this tool mimics the login process to connect to API.
-That's why you need to provide your full Intigriti login credentials at start.
+![Discord notification](https://github.com/0xJeti/intitools/raw/main/image/discord-notify.png) ![Slack notification](https://github.com/0xJeti/intitools/raw/main/image/slack-notify.png)
 
-**NOTE:** It doesn't work yet if you have 2FA authentication enabled.
-## Installation
-Install it from GitHub repository:
+As Intigriti does not provide official API for researchers this tool mimics the login process to connect to API. That's why you need to provide your full Intigriti login credentials at start.
+
+
+# Installation
+Install / update from GitHub repository:
 ```
-go get github.com/0xJeti/intitools/cmd/inti-activity
+go get -v -u github.com/0xJeti/intitools/cmd/inti-activity
 ```
 
-### Get Webhook URL
+## Webhook URL
 You need to create a Webhook to your Discord / Slack channel:
   * Slack - see [Sending messages using Incoming Webhooks](https://api.slack.com/messaging/webhooks)
   * Discord - See [Intro to Webhooks](https://support.discord.com/hc/en-us/articles/228383668-Intro-to-Webhooks)
-  
-## Run
-`inti-activity` should run as a background process. Use your favourite way of daemonizing the process (`nohup`, `screen`, `tmux`, `systemd` etc.)
+
+## 2FA secret
+If you use Two-factor authentication you need to obtain your 2FA secret. If your password manager is not giving you this information (e.g. Google Authenticator) you need to disable 2FA and enable it again to get the secret:
+![2FA Secret](https://github.com/0xJeti/intitools/raw/main/image/2fa-secret.jpg)
+
+# Usage
+`inti-activity` should be executed as a background process. Use your favourite way of daemonizing the process (`nohup`, `screen`, `tmux`, `systemd` etc.)
 
 Usage of `inti-activity`:
 ```
-  -config:      Path to config file
+  -config:      Path to config file (optional)
   -username:    Intigriti username (e-mail)
   -password:    Intigriti password
+  -secret:      Intigriti 2FA secret (optional) 
   -webhook:     Webhook URL
   -type:        Webhook type [slack|discord]
-  -tick:        Ticking interval (dafault 60s)
-  -last:        Number of activity entries sent on start (for debugging)
+  -tick:        Ticking interval (optional, dafault 60s)
+  -last:        Number of activity entries sent on start (optional, for debugging)
 ```
 
-Alternatively you can provide config file with all parameters defined: (name it e.g. *monitor.conf*):
+You can provide all mandatory parameters via command line arguments.
+Alternatively you can create a config file with some parameters defined: (name it e.g. *monitor.conf*):
 
 ```
 username YOUR_EMAIL
@@ -44,5 +50,3 @@ and run the monitor with `-config` parameter:
 ```
 inti-activity -config monitor.conf
 ```
-
-
