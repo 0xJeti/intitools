@@ -23,6 +23,7 @@ You need to create a Webhook to your Discord / Slack channel:
 If you use Two-factor authentication you need to obtain your 2FA secret. If your password manager is not giving you this information (e.g. Google Authenticator) you need to disable 2FA and enable it again to get the secret:
 ![2FA Secret](https://github.com/0xJeti/intitools/raw/main/image/2fa-secret.jpg)
 
+**WARNING:** Copy the secret, uppercase it and remove the spaces before use. 
 # Usage
 `inti-activity` should be executed as a background process. Use your favourite way of daemonizing the process (`nohup`, `screen`, `tmux`, `systemd` etc.)
 
