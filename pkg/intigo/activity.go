@@ -118,7 +118,7 @@ func (c *Client) GetSubmissionState(state int) string {
 func (c *Client) GetClosedState(state int) string {
 	closedStates := []string{
 		"Dummy",
-		"Unknown",
+		"Resolved",
 		"Duplicate",
 		"Unknown: 3",
 		"Informative",
