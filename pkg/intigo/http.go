@@ -44,6 +44,11 @@ type ResponseState struct {
 	Duplicatesubmission string `json:"duplicateSubmission"`
 }
 
+type ResponsePayout struct {
+	Value    float32 `json:"value"`
+	Currency string  `json:"currency"`
+}
+
 type ResponseUser struct {
 	Role     string `json:"role"`
 	Email    string `json:"email"`

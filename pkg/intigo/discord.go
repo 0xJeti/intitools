@@ -118,13 +118,18 @@ func (c *Client) DiscordFormatActivity(a Activity) string {
 
 	//	5 	Submission 	- Payout
 	case 5:
-		message = fmt.Sprintf("New payout **€%.f** :partying_face:", a.NewPayoutAmount)
+		message = fmt.Sprintf("New payout **%s %.f** :partying_face:", a.NewPayoutAmount.Currency, a.NewPayoutAmount.Value)
 		link = submissionLink
 		title = submissionTitle
 
 	//	7 	Submission 	- Change vulnerable endpoint
 	case 7:
 		message = fmt.Sprintf("The **endpoint / vulnerable component** changed")
+		link = submissionLink
+		title = submissionTitle
+	//	8 	Submission 	- User changed vulnerability type
+	case 8:
+		message = fmt.Sprintf("**@%s** changed vulnerability **type**", a.UserName)
 		link = submissionLink
 		title = submissionTitle
 
@@ -148,6 +153,15 @@ func (c *Client) DiscordFormatActivity(a Activity) string {
 	//	20 	Program		- Status Change
 	case 20:
 		message = fmt.Sprintf("Program changed **status** to `%s`", c.GetProgramState(a.Newstatusid))
+		link = programLink
+		title = programTitle
+	//	22 	Program		- Change description
+	case 22:
+		descr := a.Description
+		if len(descr) > 250 {
+			descr = descr[:250]
+		}
+		message = fmt.Sprintf("Program changed description: \n```%s```", descr)
 		link = programLink
 		title = programTitle
 	//	23 	Program		- Update bounties

@@ -32,27 +32,27 @@ type ActivityList struct {
 }
 
 type Activity struct {
-	Discriminator   int           `json:"discriminator"`
-	Newstatusid     int           `json:"newStatusId"`
-	Oldstatusid     int           `json:"oldStatusId"`
-	Trigger         int           `json:"trigger"`
-	Title           string        `json:"title"`
-	Description     string        `json:"description"`
-	Newstate        ResponseState `json:"newState"`
-	User            ResponseUser  `json:"user"`
-	UserName        string        `json:"username"`
-	Newseverityid   int           `json:"newSeverityId"`
-	NewPayoutAmount float32       `json:"newPayoutAmount"`
-	NewPayoutType   int           `json:"newPayoutType"`
-	Submissioncode  string        `json:"submissionCode"`
-	Submissiontitle string        `json:"submissionTitle"`
-	Createdat       int           `json:"createdAt"`
-	Programid       string        `json:"programId"`
-	Programlogoid   string        `json:"programLogoId"`
-	Programname     string        `json:"programName"`
-	Programhandle   string        `json:"programHandle"`
-	Companyhandle   string        `json:"companyHandle"`
-	Newendpoint     string        `json:"newEndpointVulnerableComponent"`
+	Discriminator   int            `json:"discriminator"`
+	Newstatusid     int            `json:"newStatusId"`
+	Oldstatusid     int            `json:"oldStatusId"`
+	Trigger         int            `json:"trigger"`
+	Title           string         `json:"title"`
+	Description     string         `json:"description"`
+	Newstate        ResponseState  `json:"newState"`
+	User            ResponseUser   `json:"user"`
+	UserName        string         `json:"username"`
+	Newseverityid   int            `json:"newSeverityId"`
+	NewPayoutAmount ResponsePayout `json:"newPayoutAmount"`
+	NewPayoutType   int            `json:"newPayoutType"`
+	Submissioncode  string         `json:"submissionCode"`
+	Submissiontitle string         `json:"submissionTitle"`
+	Createdat       int            `json:"createdAt"`
+	Programid       string         `json:"programId"`
+	Programlogoid   string         `json:"programLogoId"`
+	Programname     string         `json:"programName"`
+	Programhandle   string         `json:"programHandle"`
+	Companyhandle   string         `json:"companyHandle"`
+	Newendpoint     string         `json:"newEndpointVulnerableComponent"`
 }
 
 type ActivityOptions struct {
@@ -103,7 +103,7 @@ func (c *Client) CheckActivity(ctx context.Context) (int, error) {
 func (c *Client) GetSubmissionState(state int) string {
 	submmissionStates := []string{
 		"Dummy",
-		"Unknown: 1",
+		"Triage",
 		"Pending",
 		"Accepted",
 		"Closed",
@@ -120,7 +120,7 @@ func (c *Client) GetClosedState(state int) string {
 		"Dummy",
 		"Resolved",
 		"Duplicate",
-		"Unknown: 3",
+		"Archived",
 		"Informative",
 		"Unknown: 5",
 		"Unknown: 6",
@@ -139,7 +139,8 @@ func (c *Client) GetSeverity(severity int) string {
 		"High",
 		"Critical",
 		"Exceptional",
-		"Unknown: 7",
+		"Undecided",
+		"Unknown: 8",
 	}
 
 	return severityIds[severity]

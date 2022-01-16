@@ -91,11 +91,14 @@ func (c *Client) SlackFormatActivity(a Activity) string {
 
 	//	5 	Submission 	- Payout
 	case 5:
-		message = fmt.Sprintf("%s\nNew payout *€%.f* :partying_face:", submissionLink, a.NewPayoutAmount)
+		message = fmt.Sprintf("%s\nNew payout *%s %.f* :partying_face:", submissionLink, a.NewPayoutAmount.Currency, a.NewPayoutAmount.Value)
 
 	//	7 	Submission 	- Change vulnerable endpoint
 	case 7:
 		message = fmt.Sprintf("%s\nThe *endpoint / vulnerable component* changed", submissionLink)
+	//	8 	Submission 	- User changed vulnerability type
+	case 8:
+		message = fmt.Sprintf("%s\n*%s* changed *vulnerability type*", submissionLink, a.UserName)
 	//	9 	Submission 	- User requires additional feedback
 	case 9:
 		message = fmt.Sprintf("%s\n*%s* requires additional feedback", submissionLink, a.UserName)
@@ -108,6 +111,13 @@ func (c *Client) SlackFormatActivity(a Activity) string {
 	//	20 	Program		- Status Change
 	case 20:
 		message = fmt.Sprintf("%s changed *program status* to `%s`", programLink, c.GetProgramState(a.Newstatusid))
+	//	22 	Program		- Update description
+	case 22:
+		descr := a.Description
+		if len(descr) > 500 {
+			descr = fmt.Sprintf("%s [...]", descr[:500])
+		}
+		message = fmt.Sprintf("%s changed description: \n```%s```", programLink, descr)
 	//	23 	Program		- Update bounties
 	case 23:
 		message = fmt.Sprintf("%s updated *bounties*", programLink)
