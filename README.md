@@ -11,7 +11,7 @@ As Intigriti does not provide official API for researchers this tool mimics the 
 # Installation
 Install / update from GitHub repository:
 ```
-go get -v -u github.com/0xJeti/intitools/cmd/inti-activity
+go install github.com/0xJeti/intitools/cmd/inti-activity@latest
 ```
 
 ## Webhook URL
