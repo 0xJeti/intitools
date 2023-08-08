@@ -132,6 +132,7 @@ func (c *Client) Authenticate() error {
 		form.Add("__RequestVerificationToken", csrfToken)
 		form.Add("Input.ReturnUrl", returnURL)
 		form.Add("Input.Email", c.username)
+		form.Add("Input.LocalLogin", "True")
 		form.Add("Input.Password", c.password)
 
 		// Second request to submit username and password
