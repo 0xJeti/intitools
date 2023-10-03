@@ -67,7 +67,7 @@ func (c *Client) DiscordSend(ctx context.Context, message string) error {
 	return nil
 }
 
-func (c *Client) DiscordFormatActivity(a Activity) string {
+func (c *Client) DiscordFormatActivity(a Activity) (string, error) {
 
 	var message string
 
@@ -90,7 +90,7 @@ func (c *Client) DiscordFormatActivity(a Activity) string {
 		userRole := a.User.Role
 		// Do not send notifications about our own messages
 		if userRole == "RESEARCHER" {
-			return ""
+			return "", fmt.Errorf("empty message")
 		}
 
 		message = fmt.Sprintf("New **message** from *%s* (%s)",
@@ -233,9 +233,9 @@ func (c *Client) DiscordFormatActivity(a Activity) string {
 	jsonMsg, err := json.Marshal(discordMsg)
 
 	if err != nil {
-		return ""
+		return "", err
 	}
 
-	return string(jsonMsg)
+	return string(jsonMsg), nil
 
 }

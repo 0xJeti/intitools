@@ -147,7 +147,7 @@ func (c *Client) GetSeverity(severity int) string {
 }
 
 func (c *Client) GetProgramState(program int) string {
-	programStates := []string{
+	programStates := [1006]string{
 		"Dummy",
 		"Unknown: 1",
 		"Unknown: 2",
@@ -157,5 +157,8 @@ func (c *Client) GetProgramState(program int) string {
 		"Closed",
 		"Unknown: 7",
 	}
+	programStates[1001] = "Closed"
+	programStates[1002] = "Enrolling"
+
 	return programStates[program]
 }

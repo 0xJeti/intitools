@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"net/url"
 )
@@ -45,7 +45,7 @@ func (c *Client) SlackSend(message string) error {
 		return err
 	}
 
-	resp, err := ioutil.ReadAll(res.Body)
+	resp, err := io.ReadAll(res.Body)
 
 	if string(resp) != "ok" {
 		return fmt.Errorf("cannot send message - %s", string(resp))
@@ -54,7 +54,7 @@ func (c *Client) SlackSend(message string) error {
 	return nil
 }
 
-func (c *Client) SlackFormatActivity(a Activity) string {
+func (c *Client) SlackFormatActivity(a Activity) (string, error) {
 
 	var message string
 
@@ -69,7 +69,7 @@ func (c *Client) SlackFormatActivity(a Activity) string {
 		userRole := a.User.Role
 		// Do not send notifications about our own messages
 		if userRole == "RESEARCHER" {
-			return ""
+			return "", fmt.Errorf("empty message")
 		}
 
 		message = fmt.Sprintf("%s\nNew *message* from *%s* (%s)",
@@ -171,9 +171,9 @@ func (c *Client) SlackFormatActivity(a Activity) string {
 	jsonMsg, err := json.Marshal(slackMsg)
 
 	if err != nil {
-		return ""
+		return "", err
 	}
 
-	return string(jsonMsg)
+	return string(jsonMsg), nil
 
 }

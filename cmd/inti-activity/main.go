@@ -105,11 +105,15 @@ func run(ctx context.Context, conf *config, out io.Writer) error {
 				}
 
 				if conf.webhooktype == "slack" {
-					message := c.SlackFormatActivity(activity)
-					err = c.SlackSend(message)
+					message, err := c.SlackFormatActivity(activity)
+					if err == nil {
+						err = c.SlackSend(message)
+					}
 				} else {
-					message := c.DiscordFormatActivity(activity)
-					err = c.DiscordSend(httpctx, message)
+					message, err := c.DiscordFormatActivity(activity)
+					if err == nil {
+						err = c.DiscordSend(httpctx, message)
+					}
 				}
 
 				if err != nil {
