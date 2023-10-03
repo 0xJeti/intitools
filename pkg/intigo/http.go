@@ -4,7 +4,7 @@ import (
 	"crypto/tls"
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"log"
 	"net/http"
 	"net/http/cookiejar"
@@ -64,8 +64,7 @@ func NewClient(username string, password string, secret string, rl *rate.Limiter
 		log.Fatal(err)
 	}
 
-	// To prevent long activity list on first execution, limit them to last hour
-	lastVisited := time.Now().Unix()
+	lastVisited := time.Now().UTC().Unix()
 	tr := &http.Transport{
 		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
 	}
@@ -231,7 +230,7 @@ func (c *Client) Authenticate() error {
 	}
 
 	// Parse response to get API Token
-	apiToken, err := ioutil.ReadAll(res4.Body)
+	apiToken, err := io.ReadAll(res4.Body)
 	if err != nil {
 		log.Fatal(err)
 	}

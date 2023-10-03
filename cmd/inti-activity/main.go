@@ -119,7 +119,7 @@ func run(ctx context.Context, conf *config, out io.Writer) error {
 
 			}
 
-			c.LastViewed = time.Now().Unix()
+			c.LastViewed = time.Now().UTC().Unix()
 		}
 	}
 
