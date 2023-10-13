@@ -120,11 +120,11 @@ func (c *Client) GetClosedState(state int) string {
 		"Dummy",
 		"Resolved",
 		"Duplicate",
-		"Archived",
+		"Accepted Risk",
 		"Informative",
-		"Unknown: 5",
-		"Unknown: 6",
-		"Unknown: 7",
+		"Out Of Scope",
+		"Spam",
+		"Not Applicable",
 	}
 
 	return closedStates[state]
@@ -155,10 +155,13 @@ func (c *Client) GetProgramState(program int) string {
 		"Suspended",
 		"Closing",
 		"Closed",
-		"Unknown: 7",
+		"Deleted",
 	}
-	programStates[1001] = "Closed"
+	programStates[1001] = "Draft"
 	programStates[1002] = "Enrolling"
+	programStates[1003] = "Open"
+	programStates[1004] = "Closing"
+	programStates[1005] = "Closed"
 
 	return programStates[program]
 }

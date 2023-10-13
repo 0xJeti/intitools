@@ -5,7 +5,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"log"
 	"net/http"
 	"net/url"
@@ -54,7 +54,7 @@ func (c *Client) DiscordSend(ctx context.Context, message string) error {
 
 	if res.StatusCode < 200 || res.StatusCode > 299 {
 		log.Print(message)
-		bodyBytes, err := ioutil.ReadAll(res.Body)
+		bodyBytes, err := io.ReadAll(res.Body)
 		if err != nil {
 			log.Fatal(err)
 		}
