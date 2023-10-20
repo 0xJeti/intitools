@@ -46,7 +46,7 @@ type Activity struct {
 	NewPayoutType   int            `json:"newPayoutType"`
 	Submissioncode  string         `json:"submissionCode"`
 	Submissiontitle string         `json:"submissionTitle"`
-	Createdat       int            `json:"createdAt"`
+	CreatedAt       int64          `json:"createdAt"`
 	Programid       string         `json:"programId"`
 	Programlogoid   string         `json:"programLogoId"`
 	Programname     string         `json:"programName"`
@@ -81,8 +81,9 @@ func (c *Client) GetActivities(ctx context.Context) (*ActivityList, error) {
 	return &res, nil
 }
 
-func (c *Client) CheckActivity(ctx context.Context) (int, error) {
+func (c *Client) CheckActivity() (int, error) {
 
+	ctx := c.HttpCtx
 	req, err := http.NewRequest("GET", fmt.Sprintf("%s/core/researcher/dashboard/activity/amount?lastviewed=%d", c.ApiURL, c.LastViewed), nil)
 	if err != nil {
 		return 0, err
@@ -95,9 +96,10 @@ func (c *Client) CheckActivity(ctx context.Context) (int, error) {
 	if err := c.sendRequest(req, &res); err != nil {
 		return 0, err
 	}
-
-	log.Printf("Checking for new activities: %d\n", res)
-
+	// Log only freshly found activites. This was filling up the log.
+	if res > 0 {
+		log.Printf("Found %d new activities.\n", res)
+	}
 	return res, nil
 }
 func (c *Client) GetSubmissionState(state int) string {

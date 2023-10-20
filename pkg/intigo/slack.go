@@ -16,13 +16,20 @@ type slackMessage struct {
 }
 
 type slackBlock struct {
-	Type string         `json:"type"`
-	Text slackBlockText `json:"text"`
+	Type      string              `json:"type"`
+	Text      slackBlockText      `json:"text"`
+	Accessory slackBlockAccessory `json:"accessory"`
 }
 
 type slackBlockText struct {
 	Type string `json:"type"`
 	Text string `json:"text"`
+}
+
+type slackBlockAccessory struct {
+	Type    string `json:"type"`
+	Url     string `json:"image_url"`
+	AltText string `json:"alt_text"`
 }
 
 func (c *Client) SlackSend(message string) error {
@@ -60,8 +67,10 @@ func (c *Client) SlackFormatActivity(a Activity) (string, error) {
 
 	submissionLink := fmt.Sprintf("*%s* <https://app.intigriti.com/researcher/submissions/%s/%s|%s>",
 		url.PathEscape(a.Programname), url.PathEscape(a.Programid), a.Submissioncode, a.Submissiontitle)
-	programLink := fmt.Sprintf("<https://app.intigriti.com/researcher/programs/%s/%s|%s>",
+	programLink := fmt.Sprintf("<https://app.intigriti.com/researcher/programs/%s/%s/detail|%s>",
 		url.PathEscape(a.Companyhandle), url.PathEscape(a.Programhandle), a.Programname)
+
+	iconUrl := fmt.Sprintf("https://api.intigriti.com/file/api/file/%s", a.Programlogoid)
 
 	switch d := a.Discriminator; d {
 
@@ -123,22 +132,29 @@ func (c *Client) SlackFormatActivity(a Activity) (string, error) {
 		message = fmt.Sprintf("%s updated *bounties*", programLink)
 	//	24 	Program		- Update scope
 	case 24:
-		message = fmt.Sprintf("%s updated *scope*", programLink)
+		diff := c.GetProgramContentDiff(a, "InScopes")
+		//		message = fmt.Sprintf("Program updated **in scope**\n```\n%s\n```", diff)
+		message = fmt.Sprintf("%s updated *scope*\n```\n%s\n```", programLink, diff)
 	//	25 	Program		- Update out of scope
 	case 25:
-		message = fmt.Sprintf("%s updated *out of scope*", programLink)
+		diff := c.GetProgramContentDiff(a, "OutScopes")
+		message = fmt.Sprintf("%s updated *out of scope*\n```\n%s\n```", programLink, diff)
 	//	26 	Program		- Update FAQ
 	case 26:
-		message = fmt.Sprintf("%s updated *FAQ*", programLink)
+		diff := c.GetProgramContentDiff(a, "Faqs")
+		message = fmt.Sprintf("%s updated *FAQ*\n```\n%s\n```", programLink, diff)
 	//	27 	Program		- Update domains
 	case 27:
-		message = fmt.Sprintf("%s updated *domains*", programLink)
+		diff := c.GetProgramDomainsDiff(a)
+		message = fmt.Sprintf("%s updated *domains*\n%s\n", programLink, diff)
 	//	28 	Program		- Update rules of engagement
 	case 28:
-		message = fmt.Sprintf("%s updated *rules of engagement*", programLink)
+		diff := c.GetProgramRulesDiff(a)
+		message = fmt.Sprintf("%s updated *rules of engagement*\n```\n%s\n```", programLink, diff)
 	//	29 	Program		- Update severity assessment
 	case 29:
-		message = fmt.Sprintf("%s updated *severity assessment*", programLink)
+		diff := c.GetProgramContentDiff(a, "SeverityAssessments")
+		message = fmt.Sprintf("%s updated *severity assessment*\n```\n%s\n```", programLink, diff)
 		//	47 	Program		- Program update published
 	case 47:
 		descr := a.Description
@@ -157,6 +173,11 @@ func (c *Client) SlackFormatActivity(a Activity) (string, error) {
 		Text: slackBlockText{
 			Text: message,
 			Type: "mrkdwn",
+		},
+		Accessory: slackBlockAccessory{
+			Type:    "image",
+			Url:     iconUrl,
+			AltText: a.Programname,
 		},
 	}
 

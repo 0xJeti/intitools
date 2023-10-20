@@ -65,6 +65,7 @@ func run(ctx context.Context, conf *config, out io.Writer) error {
 
 	log.Printf("Starting monitoring with tick %s", conf.tick)
 	httpctx := context.Background()
+	c.HttpCtx = httpctx
 	for {
 		select {
 		case <-ctx.Done():
@@ -78,7 +79,7 @@ func run(ctx context.Context, conf *config, out io.Writer) error {
 
 			}
 
-			numActivities, err := c.CheckActivity(httpctx)
+			numActivities, err := c.CheckActivity()
 			if err != nil {
 				log.Printf("CheckActivity error: %s\n", err)
 				continue

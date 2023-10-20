@@ -75,7 +75,7 @@ func (c *Client) DiscordFormatActivity(a Activity) (string, error) {
 		url.PathEscape(a.Programid), url.PathEscape(a.Submissioncode))
 	submissionTitle := fmt.Sprintf("[%s] %s", a.Programname, a.Submissiontitle)
 
-	programLink := fmt.Sprintf("https://app.intigriti.com/researcher/programs/%s/%s",
+	programLink := fmt.Sprintf("https://app.intigriti.com/researcher/programs/%s/%s/detail",
 		url.PathEscape(a.Companyhandle), url.PathEscape(a.Programhandle))
 	programTitle := a.Programname
 
@@ -161,7 +161,7 @@ func (c *Client) DiscordFormatActivity(a Activity) (string, error) {
 		if len(descr) > 250 {
 			descr = descr[:250]
 		}
-		message = fmt.Sprintf("Program changed description: \n```%s```", descr)
+		message = fmt.Sprintf("Program changed description: \n```\n%s```", descr)
 		link = programLink
 		title = programTitle
 	//	23 	Program		- Update bounties
@@ -169,34 +169,41 @@ func (c *Client) DiscordFormatActivity(a Activity) (string, error) {
 		message = fmt.Sprintf("Program updated **bounties**")
 		link = programLink
 		title = programTitle
-	//	24 	Program		- Update scope
+	//	24 	Program		- Update in scope
 	case 24:
-		message = fmt.Sprintf("Program updated **scope**")
+		diff := c.GetProgramContentDiff(a, "InScopes")
+		message = fmt.Sprintf("Program updated **in scope**\n```diff\n%s\n```", diff)
 		link = programLink
 		title = programTitle
 	//	25 	Program		- Update out of scope
 	case 25:
-		message = fmt.Sprintf("Program updated **out of scope**")
+		diff := c.GetProgramContentDiff(a, "OutScopes")
+		message = fmt.Sprintf("Program updated **out of scope**\n```diff\n%s\n```", diff)
 		link = programLink
 		title = programTitle
 	//	26 	Program		- Update FAQ
 	case 26:
-		message = fmt.Sprintf("Program updated **FAQ**")
+		diff := c.GetProgramContentDiff(a, "Faqs")
+		message = fmt.Sprintf("Program updated **FAQ**\n```diff\n%s\n```", diff)
 		link = programLink
 		title = programTitle
 	//	27 	Program		- Update domains
 	case 27:
-		message = fmt.Sprintf("Program updated **domains**")
+		diff := c.GetProgramDomainsDiff(a)
+		//message = fmt.Sprintf("Program updated **domains**```")
+		message = fmt.Sprintf("Program updated **domains**\n\n%s", diff)
 		link = programLink
 		title = programTitle
 	//	28 	Program		- Update rules of engagement
 	case 28:
-		message = fmt.Sprintf("Program updated **rules of engagement**")
+		diff := c.GetProgramRulesDiff(a)
+		message = fmt.Sprintf("Program updated **rules of engagement**\n```diff\n%s\n```", diff)
 		link = programLink
 		title = programTitle
 	//	29 	Program		- Update severity assessment
 	case 29:
-		message = fmt.Sprintf("Program updated **severity assessment**")
+		diff := c.GetProgramContentDiff(a, "SeverityAssessments")
+		message = fmt.Sprintf("Program updated **severity assessment**\n```diff\n%s\n```", diff)
 		link = programLink
 		title = programTitle
 		//	47 	Program		- Program update published

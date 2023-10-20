@@ -1,6 +1,7 @@
 package intitools
 
 import (
+	"context"
 	"crypto/tls"
 	"encoding/json"
 	"fmt"
@@ -36,6 +37,7 @@ type Client struct {
 	WebhookURL    string
 	Ratelimiter   *rate.Limiter
 	HTTPClient    *http.Client
+	HttpCtx       context.Context
 }
 
 type ResponseState struct {
