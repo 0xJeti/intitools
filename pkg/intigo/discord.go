@@ -158,8 +158,8 @@ func (c *Client) DiscordFormatActivity(a Activity) (string, error) {
 	//	22 	Program		- Change description
 	case 22:
 		descr := a.Description
-		if len(descr) > 250 {
-			descr = descr[:250]
+		if len(descr) > 1800 {
+			descr = descr[:1800]
 		}
 		message = fmt.Sprintf("Program changed description: \n```\n%s```", descr)
 		link = programLink

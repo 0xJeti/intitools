@@ -109,17 +109,20 @@ func run(ctx context.Context, conf *config, out io.Writer) error {
 					message, err := c.SlackFormatActivity(activity)
 					if err == nil {
 						err = c.SlackSend(message)
+						if err != nil {
+							log.Printf("Webhook send error: %s\n", err)
+							continue
+						}
 					}
 				} else {
 					message, err := c.DiscordFormatActivity(activity)
 					if err == nil {
 						err = c.DiscordSend(httpctx, message)
+						if err != nil {
+							log.Printf("Webhook send error: %s\n", err)
+							continue
+						}
 					}
-				}
-
-				if err != nil {
-					log.Printf("Webhook send error: %s\n", err)
-					continue
 				}
 
 			}

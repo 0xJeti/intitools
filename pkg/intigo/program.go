@@ -134,8 +134,11 @@ func (c *Client) GetProgramContentDiff(a Activity, field string) string {
 	if len(edits) == 0 {
 		return "No changes"
 	}
-	return fmt.Sprint(gotextdiff.ToUnified(newDate, oldDate, oldContent, edits))
-
+	content := fmt.Sprint(gotextdiff.ToUnified(newDate, oldDate, oldContent, edits))
+	if len(content) > 1800 {
+		content = "Message too long"
+	}
+	return content
 }
 
 func (c *Client) GetProgramRulesDiff(a Activity) string {
@@ -188,7 +191,11 @@ func (c *Client) GetProgramRulesDiff(a Activity) string {
 	if len(edits) == 0 {
 		return "No changes"
 	}
-	return fmt.Sprint(gotextdiff.ToUnified(newDate, oldDate, oldContent, edits))
+	content := fmt.Sprint(gotextdiff.ToUnified(newDate, oldDate, oldContent, edits))
+	if len(content) > 1800 {
+		content = "Message too long"
+	}
+	return content
 
 }
 
@@ -294,27 +301,11 @@ func (c *Client) GetProgramDomainsDiff(a Activity) string {
 		}
 
 	}
-
+	if len(newContent) > 1800 {
+		newContent = "Message too long"
+	}
 	return newContent
-	/*
-		oldContent := ""
 
-		newDate := time.Unix(int64(activityCreated), 0).String()
-		oldDate := ""
-
-		if activityIdx > 0 {
-			for _, dom := range changes[activityIdx-1].Content {
-				oldContent += fmt.Sprintf("id: %s, type: %d, endpoint: %s, tier: %d\n", dom.Id, dom.Type, dom.Endpoint, dom.BountyTierId)
-			}
-			oldDate = time.Unix(int64(changes[activityIdx-1].CreatedAt), 0).String()
-		}
-
-		edits := myers.ComputeEdits(span.URIFromPath(oldDate), oldContent, newContent)
-		if len(edits) == 0 {
-			return "No changes"
-		}
-		return fmt.Sprint(gotextdiff.ToUnified(oldDate, newDate, oldContent, edits))
-	*/
 }
 func (c *Client) GetEndpointType(typeId int) string {
 	typeIds := []string{
