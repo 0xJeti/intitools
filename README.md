@@ -6,6 +6,7 @@ Small tool, written in Go, that constantly monitors Activity feed on https://app
 ![Slack notification](https://github.com/0xJeti/intitools/raw/main/image/slack-notify.png)
 
 It is capable of showing differences between changes (new domains added/removed, updated In Scope, Out of Scope, descriptions etc.):
+
 ![Discord changes](https://github.com/0xJeti/intitools/raw/main/image/discord-changes.png)
 
 
