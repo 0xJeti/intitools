@@ -1,14 +1,17 @@
-Small tool, written in Go, that constantly monitors Activity feed on https://app.intigriti.com Dashboard page and sends Slack/Discord notifications on new activities.
+Small tool, written in Go, that constantly monitors Activity feed on https://app.intigriti.com Dashboard page and sends Slack/Discord notifications on new activities. 
 
 ### Discord notifications
 ![Discord notification](https://github.com/0xJeti/intitools/raw/main/image/discord-notify.png)
 ### Slack notifications
 ![Slack notification](https://github.com/0xJeti/intitools/raw/main/image/slack-notify.png)
 
-As Intigriti does not provide official API for researchers this tool mimics the login process to connect to API. That's why you need to provide your full Intigriti login credentials at start.
+It is capable of showing differences between changes (new domains added/removed, updated In Scope, Out of Scope, descriptions etc.):
+![Discord changes](https://github.com/0xJeti/intitools/raw/main/image/discord-changes.png)
 
 
 # Installation
+> As Intigriti does not provide official API for researchers this tool mimics the login process to connect to API. That's why you need to provide your full Intigriti login credentials at start.
+
 Install / update from GitHub repository:
 ```
 go install github.com/0xJeti/intitools/cmd/inti-activity@latest

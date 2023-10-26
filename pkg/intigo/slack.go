@@ -70,7 +70,7 @@ func (c *Client) SlackFormatActivity(a Activity) (string, error) {
 	programLink := fmt.Sprintf("<https://app.intigriti.com/researcher/programs/%s/%s/detail|%s>",
 		url.PathEscape(a.Companyhandle), url.PathEscape(a.Programhandle), a.Programname)
 
-	iconUrl := fmt.Sprintf("https://api.intigriti.com/file/api/file/%s", a.Programlogoid)
+	iconUrl := fmt.Sprintf("https://app.intigriti.com/api/file/api/file/%s", a.Programlogoid)
 
 	switch d := a.Discriminator; d {
 

@@ -79,7 +79,7 @@ func (c *Client) DiscordFormatActivity(a Activity) (string, error) {
 		url.PathEscape(a.Companyhandle), url.PathEscape(a.Programhandle))
 	programTitle := a.Programname
 
-	iconUrl := fmt.Sprintf("https://api.intigriti.com/file/api/file/%s", a.Programlogoid)
+	iconUrl := fmt.Sprintf("https://app.intigriti.com/api/file/api/file/%s", a.Programlogoid)
 
 	var link string
 	var title string
