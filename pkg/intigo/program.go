@@ -328,6 +328,7 @@ func (c *Client) GetEndpointTier(tierId int) string {
 		"Tier 3",
 		"Tier 2",
 		"Tier 1",
+		"Out of scope",
 	}
 
 	return tierIds[tierId]
